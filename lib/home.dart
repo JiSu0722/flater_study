@@ -81,73 +81,82 @@ class _HomeState extends State<Home> {
       ],
     );
   }
+  Widget _title(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Container(
+      width: screenWidth * 1,
+      height: screenWidth * 0.08,
+      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ), // 원하는 만큼의 radius 값 설정
+      ),
+      child: Row(
+        children: [
+          Text("예지보전 알람", style: TextStyle(fontWeight: FontWeight.bold),),
+        ],
+      ),
+    );
+  }
+
+  Widget _body(BuildContext context) {
+    return Expanded(
+      child: ListView.separated(
+        itemBuilder: (BuildContext _context, int index) {
+          return Container(
+            child: Row(
+              children: [
+                Container(
+                  child: Column(
+                    children: [
+                      Text(datas[index]["processName"]!),
+                      Text(datas[index]["processCode"]!),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        itemCount: 10,
+        separatorBuilder: (BuildContext _context, int index) {
+          return Container(
+            height: 1,
+            color: Colors.black.withOpacity(0.5),
+          );
+        },
+      ),
+    );
+  }
 
   Widget _bodyWidget(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(20)),
-      child: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Color(0xfff2f5fa),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2), // 그림자 색상 및 투명도 조절
-                spreadRadius: 1, // 그림자 퍼짐 정도
-                blurRadius: 3, // 그림자 흐림 정도
-                offset: Offset(1, 3), // 그림자 위치 조절 (가로, 세로)
-              ),
-            ],
-          ),
-          width: screenWidth * 0.9,
-          height: screenWidth * 1.41,
-          child: Column(
-            children: [
-              Column(
-                children: [
-                  Container(
-                    width: screenWidth * 1,
-                    height: screenWidth * 0.08,
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth*0.02),
-                      color: Colors.white,
-                    child: Row(
-                      children: [
-                        Text("예지보전 알람"),
-                      ],
-                    )
-                  ),
-                ],
-              ),
-              Expanded(
-                child: ListView.separated(
-                  itemBuilder: (BuildContext _context, int index) {
-                    return Container(
-                      child: Row(
-                        children: [
-                          Container(
-                            child: Column(
-                              children: [
-                                Text(datas[index]["processName"]!),
-                                Text(datas[index]["processCode"]!),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  itemCount: 10,
-                  separatorBuilder: (BuildContext _context, int index) {
-                    return Container(
-                      height: 1,
-                      color: Colors.black.withOpacity(0.5),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+    return Center(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color(0xfff2f5fa),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: Offset(1, 3),
+            ),
+          ],
+        ),
+        width: screenWidth * 0.9,
+        height: screenWidth * 1.41,
+        child: Column(
+          children: [
+            _title(context),
+            _body(context),
+          ],
         ),
       ),
     );
