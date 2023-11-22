@@ -20,7 +20,7 @@ class _HomeState extends State<Home> {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('yyyy-MM-dd').format(now);
     String formattedDay = DateFormat('EEEE').format(now);
-
+    // commitTest
     return Scaffold(
       appBar: AppBar(
           backgroundColor: Color(0xffcdf860),
