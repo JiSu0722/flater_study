@@ -1,76 +1,56 @@
-import 'package:flutter/cupertino.dart';
+import 'package:adroid_study/server.dart';
 import 'package:flutter/material.dart';
+class WikiItem {
+  final String title;
+  final String description;
 
-class BodyFrame{
+  WikiItem(this.title, this.description);
 
-  Widget title(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    return Container(
-
-      padding: EdgeInsets.only(top:screenWidth*0.03,bottom:screenWidth*0.03),
-
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
-        ), // 원하는 만큼의 radius 값 설정
-      ),
-      child: const Row(
-        children: [
-          Text("예지보전 알람", style: TextStyle(fontWeight: FontWeight.bold),),
-        ],
-      ),
-    );
+  @override
+  String toString() {
+    return 'Item: { title: $title, description: $description }';
   }
-  Widget subTitle(BuildContext context)
-  {
-    final screenWidth = MediaQuery.of(context).size.width;
+}
+class BodyFrame extends StatefulWidget {
 
-    return Container(
-      padding: EdgeInsets.all(screenWidth*0.03),
-      color: Color(0xfff2f5fa),
-      child:  const Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, // 왼쪽과 오른쪽으로 정렬
-        children: [
-          Text("알림명",style: TextStyle(fontWeight: FontWeight.bold)),
-          Text("발생 시간",style: TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
+  @override
+  _BodyFrameState createState() => _BodyFrameState();
+}
+
+class _BodyFrameState extends State<BodyFrame> {
+  List<WikiItem> itemList = []; // 데이터 리스트
+  int currentPage = 1;
+  late Map<String, dynamic> jsonDataMap;
+  int totalPage = 0;
+  @override
+  void initState() {
+    super.initState();
+    _fetchData(currentPage); // 처음에 fetchData 함수 호출
   }
 
-  Widget body(BuildContext context,List<Map<String,String>> datas) {
-    final screenWidth = MediaQuery.of(context).size.width;
+  Future<void> _fetchData(int pageNumber) async {
+    try {
+      var response = await server.getReq(pageNumber, 9, "@");
 
-    return Expanded(
-      child: Container(
-        padding:  EdgeInsets.all(screenWidth*0.03),
-        child: ListView.separated(
-          itemBuilder: (BuildContext _context, int index) {
-            return Container(
-              padding:  EdgeInsets.all(screenWidth*0.03),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, // 왼쪽과 오른쪽으로 정렬
-                children: [
-                  Text(datas[index]["processName"]!),
-                  Text(datas[index]["processCode"]!,),
-                ],
-              ),
-            );
-          },
-          itemCount: 10,
-          separatorBuilder: (BuildContext _context, int index) {
-            return Container(
-            );
-          },
-        ),
-      ),
-    );
+      jsonDataMap = response.data;
+      List<dynamic> rowList = jsonDataMap['data']['row'];
+
+      totalPage = jsonDataMap['data']['total_page'];
+      setState(() {
+        itemList = rowList.map((item) {
+          String date = item['registrationDate'].toString();
+          String formattedDate = date.length >= 11 ? date.substring(0, 11) : date;
+          return WikiItem(item['wikiTitle'].toString(), formattedDate);
+        }).toList();
+            print(itemList);
+      });
+    } catch (e) {
+      print("Error occurred: $e");
+    }
   }
 
-  Widget bodyWidget(BuildContext context, List<Map<String,String>> datas) {
+  @override
+  Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Center(
@@ -90,14 +70,123 @@ class BodyFrame{
               ),
             ],
           ),
-          padding: EdgeInsets.all(screenWidth*0.03),
+          padding: EdgeInsets.all(screenWidth * 0.03),
           child: Column(
             children: [
-              title(context),
-              subTitle(context),
-              body(context,datas),
+              _buildTitle(context),
+              _buildSubTitle(context),
+              _buildBody(context), // itemList를 body에 전달
+              _buildButton(context),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButton(BuildContext context) {
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    int maxButtonsToShow = 5;
+    int startPage = 1;
+    int endPage = totalPage > maxButtonsToShow ? maxButtonsToShow : totalPage;
+
+    return Container(
+
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          for (int i = startPage; i <= endPage; i++)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: currentPage == i ? Colors.blue : Color(0xfff2f5fa), // 선택된 버튼만 파란색, 나머지는 투명 배경
+                onPrimary:  currentPage == i ? Colors.white : Color(0xff858da8), // 텍스트 색상 변경
+                minimumSize: Size(screenWidth * 0.12, screenWidth * 0.07), // 버튼의 최소 크기 설정
+              ),
+              onPressed: () {
+                setState(() {
+                  currentPage = i;
+                });
+                _fetchData(i);
+              },
+              child: Text('$i'),
+            ),
+        ],
+      ),
+    );
+  }
+  Widget _buildTitle(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Container(
+      padding: EdgeInsets.only(top: screenWidth * 0.03, bottom: screenWidth * 0.03),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      child: const Row(
+        children: [
+          Text("wiki 알람", style: TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubTitle(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Container(
+      padding: EdgeInsets.all(screenWidth * 0.03),
+      color: Color(0xfff2f5fa),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text("제목", style: TextStyle(fontWeight: FontWeight.bold)),
+          Text("작성 시간", style: TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.all(screenWidth * 0.03),
+        child: ListView.separated(
+          itemBuilder: (BuildContext _context, int index) {
+            return Container(
+              padding: EdgeInsets.all(screenWidth * 0.01),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      itemList[index].title,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      itemList[index].description,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          itemCount: itemList.length,
+          separatorBuilder: (BuildContext _context, int index) {
+            return Container();
+          },
         ),
       ),
     );

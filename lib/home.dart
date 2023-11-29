@@ -1,9 +1,8 @@
 import 'package:adroid_study/frame/bodyFrame.dart';
 import 'package:adroid_study/server.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert' as convert;
-import 'package:http/http.dart' as http;
 
 class Home extends StatefulWidget {
   Home({Key? key}) : super(key: key);
@@ -12,34 +11,14 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 class _HomeState extends State<Home> {
-  List<Map<String,String>> datas = [];
-  final BodyFrame _bodyFrame = BodyFrame(); // BodyFrame 인스턴스 생성
+  late Map<String, dynamic> jsonDataMap;
+  int totalPage = 0;
 
   @override
   void initState() {
     super.initState();
-    datas = [
-      {"processSegment": "프레스", "processName": "공정", "processCode": "3TV26HO91O_process_1"}
-      ,
-      {"processName": "FEEDER", "processCode": "3TV26HO91O_process_13"}
-      ,
-      {"processName": "레이저", "processCode": "3TV26HO91O_process_15"}
-      ,
-      {"processName": "G2/SPOT", "processCode": "3TV26HO91O_process_19"}
-      ,
-      {"processName": "BRKT(조립/용접)", "processCode": "3TV26HO91O_process_20"}
-      ,
-      {"processName": "원박스", "processCode": "3TV26HO91O_process_21"}
-      ,
-      {"processName": "EU/GPF", "processCode": "3TV26HO91O_process_22"}
-      ,
-      {"processName": "시리얼", "processCode": "3TV26HO91O_process_23"}
-      ,
-      {"processName": "프레스", "processCode": "3TV26HO91O_process_24"}
-      ,
-      {"processName": "400T 프레스", "processCode": "3TV26HO91O_process_25"}
-    ];
   }
+
   PreferredSizeWidget _appbarWidget(BuildContext context)
   {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -54,7 +33,7 @@ class _HomeState extends State<Home> {
           children: [
             IconButton(
               onPressed: () {
-                server.getReq(); // server.getReq() 메서드를 호출하는 부분
+                //server.getReq(); // server.getReq() 메서드를 호출하는 부분
               },
               icon: Icon(
                 Icons.settings_suggest_outlined, // 아이콘은 Icons.settings_suggest_outlined로 설정
@@ -98,8 +77,7 @@ class _HomeState extends State<Home> {
     // commitTest
     return Scaffold(
       appBar: _appbarWidget(context),
-      body: _bodyFrame.bodyWidget(context, datas),
-      //bottomNavigationBar: Container(),
+      body: BodyFrame(),
     );
   }
 }
