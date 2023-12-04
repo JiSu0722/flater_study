@@ -1,14 +1,14 @@
 import 'package:adroid_study/server.dart';
 import 'package:flutter/material.dart';
 class WikiItem {
-  final String title;
-  final String description;
+  final String _title;
+  final String _description;
 
-  WikiItem(this.title, this.description);
+  WikiItem(this._title, this._description);
 
   @override
   String toString() {
-    return 'Item: { title: $title, description: $description }';
+    return 'Item: { title: $_title, description: $_description }';
   }
 }
 class BodyFrame extends StatefulWidget {
@@ -30,7 +30,7 @@ class _BodyFrameState extends State<BodyFrame> {
 
   Future<void> _fetchData(int pageNumber) async {
     try {
-      var response = await server.getReq(pageNumber, 9, "@");
+      var response = await server.getReq(pageNumber, 10, "@");
 
       jsonDataMap = response.data;
       List<dynamic> rowList = jsonDataMap['data']['row'];
@@ -162,21 +162,21 @@ class _BodyFrameState extends State<BodyFrame> {
             return Container(
               padding: EdgeInsets.all(screenWidth * 0.01),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(width: 8),
-                  Expanded(
+                  Container(
+                  width: screenWidth*0.56,
+                    height: screenWidth*0.076,
                     child: Text(
-                      itemList[index].title,
+                      itemList[index]._title,
                       overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
                     ),
                   ),
-                  Expanded(
+                  SizedBox(width: screenWidth*0.02,),
+                  SizedBox(
+                    width: screenWidth*0.18,
                     child: Text(
-                      itemList[index].description,
+                      itemList[index]._description,
                       overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
                     ),
                   ),
                 ],
