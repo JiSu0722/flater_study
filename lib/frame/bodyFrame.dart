@@ -1,4 +1,4 @@
-import 'package:adroid_study/server.dart';
+import 'package:adroid_study/util/server.dart';
 import 'package:flutter/material.dart';
 class WikiItem {
   final String _title;
